@@ -5,6 +5,7 @@ const admissionRouter = express.Router();
 const admissionController = new AdmissionController();
 
 admissionRouter.post("/apply", admissionController.applyAdmission);
+admissionRouter.post("/apply/:programId", admissionController.applyAdmissionByProgramId);
 admissionRouter.get("/all", admissionController.getAllAdmission);
 admissionRouter.get("/:admissionId", admissionController.getAllAdmissionByAdmissionId);
 admissionRouter.put("/update/:admissionId", admissionController.updateAdmissionDetailByAdmissionID);

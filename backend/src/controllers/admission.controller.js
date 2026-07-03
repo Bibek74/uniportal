@@ -1,4 +1,5 @@
 const admissionModel = require("../models/admission.model");
+const programModel = require("../models/program.model");
 const { ageCalculator } = require("../utils/common");
 
 class AdmissionController {
@@ -13,22 +14,64 @@ class AdmissionController {
         });
       }
 
-      const { firstName, lastName, dob, gender, email, phone, address, schoolName, passedYear, gpa, appliedFor, termsAgreed } = req.body;
+      const {
+        firstName,
+        middleName,
+        lastName,
+        dob,
+        gender,
+        nationality,
+        email,
+        phone,
+        streetAddress,
+        city,
+        state,
+        country,
+        previousSchool,
+        graduationYear,
+        gpa,
+        emergencyContactName,
+        emergencyContactPhone,
+        emergencyContactRelationship,
+        termsAgreed,
+        programId,
+      } = req.body;
+
+      const program = await programModel.findById(programId);
+      if (!program) {
+        return res.status(400).send({
+          message: "Selected program is not valid.",
+          success: false,
+        });
+      }
+
       const calculatedAge = ageCalculator(dob);
 
       await admissionModel.create({
         firstName,
+        middleName,
         lastName,
         dob,
         age: calculatedAge,
         gender,
+        nationality,
         email,
         phone,
-        address,
-        schoolName,
-        passedYear,
+        address: {
+          streetAddress,
+          city,
+          state,
+          country,
+        },
+        previousSchool,
+        graduationYear,
         gpa,
-        appliedFor,
+        program: program._id,
+        emergencyContact: {
+          name: emergencyContactName,
+          phone: emergencyContactPhone,
+          relationship: emergencyContactRelationship,
+        },
         termsAgreed,
       });
 
@@ -47,7 +90,7 @@ class AdmissionController {
 
   getAllAdmission = async (req, res) => {
     try {
-      const result = await admissionModel.find();
+      const result = await admissionModel.find().populate("program");
 
       res.status(200).send({
         message: result.length ? "Admissions fetched successfully!" : "No admission found!",
@@ -65,7 +108,7 @@ class AdmissionController {
 
   getAllAdmissionByAdmissionId = async (req, res) => {
     try {
-      const result = await admissionModel.findOne({ _id: req.params.admissionId });
+      const result = await admissionModel.findOne({ _id: req.params.admissionId }).populate("program");
 
       if (!result) {
         return res.status(404).send({
@@ -99,30 +142,85 @@ class AdmissionController {
         });
       }
 
-      const { firstName, lastName, dob, gender, email, phone, address, schoolName, passedYear, gpa, appliedFor } = req.body;
+      const {
+        firstName,
+        middleName,
+        lastName,
+        dob,
+        gender,
+        nationality,
+        email,
+        phone,
+        streetAddress,
+        city,
+        state,
+        country,
+        previousSchool,
+        graduationYear,
+        gpa,
+        emergencyContactName,
+        emergencyContactPhone,
+        emergencyContactRelationship,
+        termsAgreed,
+        programId,
+      } = req.body;
       let calculatedAge;
 
       if (dob) {
         calculatedAge = ageCalculator(dob);
       }
 
+      const updateData = {
+        firstName,
+        middleName,
+        lastName,
+        dob,
+        gender,
+        nationality,
+        email,
+        phone,
+        previousSchool,
+        graduationYear,
+        gpa,
+        termsAgreed,
+      };
+
+      if (programId) {
+        const program = await programModel.findById(programId);
+        if (!program) {
+          return res.status(400).send({
+            message: "Selected program is not valid.",
+            success: false,
+          });
+        }
+        updateData.program = program._id;
+      }
+
+      if (typeof calculatedAge === "number") {
+        updateData.age = calculatedAge;
+      }
+
+      if (streetAddress || city || state || country) {
+        updateData.address = {
+          streetAddress,
+          city,
+          state,
+          country,
+        };
+      }
+
+      if (emergencyContactName || emergencyContactPhone || emergencyContactRelationship) {
+        updateData.emergencyContact = {
+          name: emergencyContactName,
+          phone: emergencyContactPhone,
+          relationship: emergencyContactRelationship,
+        };
+      }
+
       const result = await admissionModel.findOneAndUpdate(
         { _id: req.params.admissionId },
         {
-          $set: {
-            firstName,
-            lastName,
-            dob,
-            age: calculatedAge,
-            gender,
-            email,
-            phone,
-            address,
-            schoolName,
-            passedYear,
-            gpa,
-            appliedFor,
-          },
+          $set: updateData,
         },
         { new: true }
       );
@@ -136,6 +234,19 @@ class AdmissionController {
       console.log(err);
       res.status(500).send({
         message: err.response?.message ? `Internal server error: ${err.message}` : "Internal server error!",
+        success: false,
+      });
+    }
+  };
+
+  applyAdmissionByProgramId = async (req, res) => {
+    try {
+      req.body.programId = req.params.programId;
+      return this.applyAdmission(req, res);
+    } catch (err) {
+      console.log(err);
+      res.status(500).send({
+        message: "Internal server error.",
         success: false,
       });
     }

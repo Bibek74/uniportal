@@ -5,6 +5,10 @@ const admissionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  middleName: {
+    type: String,
+    required: true,
+  },
   lastName: {
     type: String,
     required: true,
@@ -20,26 +24,45 @@ const admissionSchema = new mongoose.Schema({
   gender: {
     type: String,
     enum: ["male", "female", "others"],
-    default: "male",
+    required: true,
+  },
+  nationality: {
+    type: String,
+    required: true,
   },
   email: {
     type: String,
     required: true,
+    unique: true,
   },
   phone: {
     type: String,
     required: true,
   },
   address: {
+    streetAddress: {
+      type: String,
+      required: true,
+    },
+    city: {
+      type: String,
+      required: true,
+    },
+    state: {
+      type: String,
+      required: true,
+    },
+    country: {
+      type: String,
+      required: true,
+    },
+  },
+  previousSchool: {
     type: String,
     required: true,
   },
-  schoolName: {
-    type: String,
-    required: true,
-  },
-  passedYear: {
-    type: String,
+  graduationYear: {
+    type: Number,
     required: true,
   },
   gpa: {
@@ -47,10 +70,24 @@ const admissionSchema = new mongoose.Schema({
     required: true,
     min: 0,
   },
-  appliedFor: {
-    type: String,
-    enum: ["science", "management", "law"],
-    default: "science",
+  program: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Program",
+    required: true,
+  },
+  emergencyContact: {
+    name: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    relationship: {
+      type: String,
+      required: true,
+    },
   },
   termsAgreed: {
     type: Boolean,
