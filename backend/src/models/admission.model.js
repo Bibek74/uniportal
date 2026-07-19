@@ -26,6 +26,11 @@ const admissionSchema = new mongoose.Schema({
     enum: ["male", "female", "others"],
     required: true,
   },
+  status: {
+    type: String,
+    enum: ["pending", "confirmed"],
+    default: "pending",
+  },
   nationality: {
     type: String,
     required: true,

@@ -17,6 +17,7 @@ export default function Navbar() {
           <Link href="/" className="transition hover:text-white">Home</Link>
           <Link href="/programs" className="transition hover:text-white">Programs</Link>
           <Link href="/admission" className="transition hover:text-white">Apply</Link>
+          <Link href="/login" className="transition hover:text-white">Admin</Link>
           <Link href="#testimonials" className="transition hover:text-white">Testimonials</Link>
           <Link href="#how-it-works" className="transition hover:text-white">How it Works</Link>
         </nav>

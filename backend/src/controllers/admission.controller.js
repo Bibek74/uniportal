@@ -35,6 +35,7 @@ class AdmissionController {
         emergencyContactRelationship,
         termsAgreed,
         programId,
+        status,
       } = req.body;
 
       const program = await programModel.findById(programId);
@@ -73,6 +74,7 @@ class AdmissionController {
           relationship: emergencyContactRelationship,
         },
         termsAgreed,
+        status: status || "pending",
       });
 
       res.status(201).send({
@@ -163,6 +165,7 @@ class AdmissionController {
         emergencyContactRelationship,
         termsAgreed,
         programId,
+        status,
       } = req.body;
       let calculatedAge;
 
@@ -184,6 +187,10 @@ class AdmissionController {
         gpa,
         termsAgreed,
       };
+
+      if (status) {
+        updateData.status = status;
+      }
 
       if (programId) {
         const program = await programModel.findById(programId);

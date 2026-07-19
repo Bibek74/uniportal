@@ -66,7 +66,7 @@ export default function AuthSection() {
         resetForm();
         setMode("login");
       }
-    } catch (error) {
+    } catch {
       setMessage("Unable to connect to the server. Please try again.");
       setStatus("error");
     } finally {

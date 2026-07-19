@@ -3,6 +3,7 @@ const admissionRouter = require("./routes/admission.routes");
 const authRouter = require("./routes/auth.route");
 const programRouter = require("./routes/program.routes");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
@@ -12,6 +13,7 @@ const corsOptions = {
 };
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors(corsOptions));
 
 app.use("/api/pdfs", express.static("src/pdfs"));

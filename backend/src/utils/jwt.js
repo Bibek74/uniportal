@@ -27,4 +27,34 @@ const jwtAuthMiddleware = (req, res, next) => {
   }
 };
 
-module.exports = { generateToken, jwtAuthMiddleware };
+
+const adminAuthMiddleware = (req, res, next) => {
+  const token = req.cookies?.auth_token || req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).send({
+      message: "Unauthorized: No token provided!",
+      success: false,
+    });
+  }
+
+  try {
+    const data = jwt.verify(token, JWT_SECRET_KEY);
+    if (data.role !== "admin") {
+      return res.status(403).send({
+        message: "Forbidden: Admin access required!",
+        success: false,
+      });
+    }
+
+    req.user = data;
+    next();
+  } catch (err) {
+    res.status(401).send({
+      message: "Unauthorized: Invalid or expired token!",
+      success: false,
+    });
+  }
+};
+
+module.exports = { generateToken, jwtAuthMiddleware, adminAuthMiddleware };

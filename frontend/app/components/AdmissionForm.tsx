@@ -132,20 +132,34 @@ export default function AdmissionForm({ initialProgramId = "" }: AdmissionFormPr
     }));
   };
 
-  const fetchPrograms = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/programs`);
-      const data = await response.json();
-      if (response.ok && data.programs) {
-        setPrograms(data.programs);
-      }
-    } catch (err) {
-      console.error("Failed to load programs", err);
-    }
-  };
-
   useEffect(() => {
-    fetchPrograms();
+    let isActive = true;
+
+    const loadPrograms = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/programs`);
+        const data = await response.json();
+
+        if (!isActive) {
+          return;
+        }
+
+        if (response.ok && data.programs) {
+          setPrograms(data.programs);
+        }
+      } catch (err) {
+        if (!isActive) {
+          return;
+        }
+        console.error("Failed to load programs", err);
+      }
+    };
+
+    void loadPrograms();
+
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -213,7 +227,7 @@ export default function AdmissionForm({ initialProgramId = "" }: AdmissionFormPr
         emergencyContactRelationship: "",
         termsAgreed: false,
       });
-    } catch (error) {
+    } catch {
       setMessage("Could not connect to the server. Please try again.");
       setStatus("error");
     } finally {

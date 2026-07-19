@@ -87,6 +87,57 @@ class AuthController {
       });
     }
   };
+
+  adminLoginUser = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const normalizedEmail = (email || "").trim().toLowerCase();
+      const userExist = await userModel.findOne({ email: normalizedEmail });
+
+      if (!userExist || userExist.role !== "admin") {
+        return res.status(401).send({
+          message: "Admin access denied.",
+          success: false,
+        });
+      }
+
+      const isPasswordMatch = await bcrypt.compare(password, userExist.password);
+
+      if (!isPasswordMatch) {
+        return res.status(401).send({
+          message: "Admin access denied.",
+          success: false,
+        });
+      }
+
+      const payload = {
+        id: userExist._id.toString(),
+        email: userExist.email,
+        role: userExist.role,
+      };
+
+      const token = generateToken(payload);
+
+      res.cookie("auth_token", token, {
+        httpOnly: true,
+        maxAge: 3000 * 1000,
+        sameSite: "lax",
+        secure: false,
+      });
+
+      res.status(200).send({
+        message: "Admin logged in successfully!",
+        result: token,
+        success: true,
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).send({
+        message: err.response?.message ? `Internal server error: ${err.message}` : "Internal server error.",
+        success: false,
+      });
+    }
+  };
 }
 
 module.exports = AuthController;
