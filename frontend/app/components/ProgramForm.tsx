@@ -7,7 +7,17 @@ const API_BASE_URL =
 
 type RequestStatus = "idle" | "success" | "error";
 
-export default function ProgramForm() {
+export type Program = {
+  _id: string;
+  name: string;
+  description: string;
+};
+
+type ProgramFormProps = {
+  onCreated?: (program: Program) => void;
+};
+
+export default function ProgramForm({ onCreated }: ProgramFormProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
@@ -51,6 +61,7 @@ export default function ProgramForm() {
       setStatus("success");
       setName("");
       setDescription("");
+      onCreated?.(data.program);
     } catch (error) {
       console.error("Program creation failed", error);
       setMessage("Could not connect to the server. Please try again.");
