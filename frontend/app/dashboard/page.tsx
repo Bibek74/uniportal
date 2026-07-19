@@ -115,6 +115,19 @@ export default function DashboardPage() {
     }
   };
 
+  const logout = async () => {
+    try {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {
+      // Ignore logout errors and redirect to login anyway.
+    } finally {
+      router.push("/login");
+    }
+  };
+
   const visibleApplications = applications.filter((application) => {
     if (filter === "all") {
       return true;
@@ -134,9 +147,15 @@ export default function DashboardPage() {
               Review all admissions, switch their status between pending and confirmed, and remove applications when necessary.
             </p>
           </div>
-          <Link href="/login" className="inline-flex items-center justify-center rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
-            Back to admin login
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={logout}
+              className="inline-flex items-center justify-center rounded-full border border-rose-300 bg-rose-50 px-5 py-3 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
+            >
+              Logout
+            </button>
+          </div>
         </div>
 
         {message ? (
